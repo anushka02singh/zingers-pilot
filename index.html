@@ -1,0 +1,297 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Zingers Reply Pilot</title></head><body>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow phone-width column, one screen per step, styled like the Zingers reply card. */
+:root {
+  --bg: #f4f4fa;
+  --card: #ffffff;
+  --ink: #1f1f33;
+  --muted: #666679;
+  --line: #dcdcea;
+  --brand: #3a3a8c;
+  --brand-ink: #ffffff;
+  --accent: #e8465a;
+  --chip-bg: #ececf8;
+  --chip-ink: #4a4a86;
+  --prompt-bg: #2f2f6e;
+  --prompt-ink: #ffffff;
+  --ok: #1f7a4d;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-head: "Space Grotesk", "Inter", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14141f; --card: #1e1e2e; --ink: #ececf6; --muted: #a0a0b8; --line: #34344a;
+    --brand: #8f8fe8; --brand-ink: #14141f; --accent: #ff6b7d; --chip-bg: #2a2a44; --chip-ink: #b8b8f0;
+    --prompt-bg: #2a2a52; --prompt-ink: #ececf6; --ok: #5fd39b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14141f; --card: #1e1e2e; --ink: #ececf6; --muted: #a0a0b8; --line: #34344a;
+  --brand: #8f8fe8; --brand-ink: #14141f; --accent: #ff6b7d; --chip-bg: #2a2a44; --chip-ink: #b8b8f0;
+  --prompt-bg: #2a2a52; --prompt-ink: #ececf6; --ok: #5fd39b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 480px; margin: 0 auto; min-width: 0; }
+h1, h2 { font-family: var(--font-head); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: 28px; }
+h2 { font-size: 20px; }
+p { margin: 0; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.brand { font-family: var(--font-head); font-weight: 700; color: var(--brand); letter-spacing: 0.02em; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.primary {
+  background: var(--brand); color: var(--brand-ink); border: 0; border-radius: 12px; padding: 14px 18px;
+  font-weight: 600; width: 100%;
+}
+.primary[disabled] { opacity: 0.4; cursor: not-allowed; }
+.ghost { background: transparent; color: var(--muted); border: 0; padding: 10px 4px; text-decoration: underline; }
+.row { display: flex; gap: 10px; align-items: center; }
+.row.spread { justify-content: space-between; }
+.progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.progress > div { height: 100%; background: var(--accent); width: 0; transition: width 0.2s; }
+@media (prefers-reduced-motion: reduce) { .progress > div { transition: none; } }
+
+/* reply card, mirrors the prototype */
+.reply-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.reply-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.chip { align-self: flex-start; background: var(--chip-bg); color: var(--chip-ink); border-radius: 999px; padding: 4px 12px; font-size: 13px; max-width: 100%; }
+.prompt-box { background: var(--prompt-bg); color: var(--prompt-ink); padding: 14px 16px; }
+.prompt-box .tag { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.75; }
+.prompt-box .txt { font-weight: 500; margin-top: 2px; }
+.photo { margin-top: 8px; background: color-mix(in srgb, var(--prompt-ink) 12%, transparent); border-radius: 10px; padding: 18px 12px; text-align: center; font-size: 14px; }
+.reply-text { font-size: 19px; font-weight: 500; line-height: 1.35; }
+.handle { font-size: 13px; color: var(--muted); }
+
+.q { display: flex; flex-direction: column; gap: 8px; }
+.q label.t, .q .t { font-weight: 600; }
+.scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.scale button { background: var(--card); color: var(--ink); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 0; font-weight: 600; }
+.scale button[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
+.ends { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.opt { display: flex; gap: 10px; align-items: flex-start; background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; }
+.opt input { margin-top: 4px; accent-color: var(--brand); }
+.opt:has(input:checked) { border-color: var(--brand); }
+textarea { width: 100%; min-height: 96px; font: inherit; color: var(--ink); background: var(--card); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; resize: vertical; }
+.result { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.ok { color: var(--ok); font-weight: 600; }
+</style>
+
+<main id="app" class="stack" aria-live="polite"></main>
+
+<script>
+// ---- Study material (edit these to change the stimuli) ----
+// 4 prompts x 3 replies. Each respondent sees all 12 replies, 4 in each context condition.
+var PROMPTS = [
+  { id: "p1", text: "POV: the group chat after 11 hours of silence", chip: "Re: POV: group chat after 11 hours of silence",
+    replies: [
+      { h: "@sleepy_otter", t: "Seen. Left on read. Both of us." },
+      { h: "@mild_salsa", t: "Someone typed for four minutes and sent “lol”." },
+      { h: "@tuesdaycrow", t: "The chat has entered its quiet era." } ] },
+  { id: "p2", text: "[Photo] A cat staring at an open laptop at 3:47 a.m.", photo: "A cat staring at an open laptop at 3:47 a.m.", chip: "Re: [Photo] cat staring at laptop, 3:47 a.m.",
+    replies: [
+      { h: "@pixel_pear", t: "He’s not judging the code. He’s judging the browser history." },
+      { h: "@lofi_gnocchi", t: "Told me to close the 47 tabs. I did not." },
+      { h: "@oat_milk_ghost", t: "He knows about the unfinished essay." } ] },
+  { id: "p3", text: "Describe your last Wi-Fi password attempt", chip: "Re: Describe your last Wi-Fi password attempt",
+    replies: [
+      { h: "@quietkiwi", t: "Capital letter, number, regret." },
+      { h: "@dial_up_dan", t: "Tried the one on the router. It was a different router." },
+      { h: "@bagel_signal", t: "Hotspot, my old friend." } ] },
+  { id: "p4", text: "The group project, the night before it’s due", chip: "Re: the group project, the night before it’s due",
+    replies: [
+      { h: "@marginnotes", t: "Four people. One doc. Three cursors blinking in silence." },
+      { h: "@cc_everyone", t: "“Per my last message” has entered the chat." },
+      { h: "@lastminutelu", t: "My contribution is moral support and formatting." } ] }
+];
+var CONDS = ["none", "chip", "full"];
+
+// ---- Build the 12-item sequence: prompts interleaved, condition rotates with the respondent's rotation ----
+function pickRotation() {
+  var h = (location.hash || "").replace("#", "").toLowerCase();
+  var i = ["a", "b", "c"].indexOf(h);
+  return i >= 0 ? i : Math.floor(Math.random() * 3);
+}
+var ROT = pickRotation();
+var ITEMS = [];
+for (var i = 0; i < 12; i++) {
+  var p = PROMPTS[i % 4], r = p.replies[Math.floor(i / 4)];
+  ITEMS.push({ id: p.id + "r" + (Math.floor(i / 4) + 1), prompt: p, reply: r, cond: CONDS[(i + ROT) % 3] });
+}
+
+var state = { step: -1, ratings: {}, exit: {}, note: "" };   // step -1 intro, 0..11 items, 12 exit, 13 done
+var app = document.getElementById("app");
+
+function el(tag, attrs, kids) {
+  var n = document.createElement(tag);
+  Object.keys(attrs || {}).forEach(function (k) {
+    if (attrs[k] === null || attrs[k] === undefined) return;
+    if (k === "text") n.textContent = attrs[k];
+    else if (k === "class") n.className = attrs[k];
+    else if (k.slice(0, 2) === "on") n.addEventListener(k.slice(2), attrs[k]);
+    else n.setAttribute(k, attrs[k]);
+  });
+  (kids || []).forEach(function (c) { if (c) n.appendChild(c); });
+  return n;
+}
+function go(step) { state.step = step; render(); window.scrollTo(0, 0); }
+
+function intro() {
+  return el("div", { class: "stack" }, [
+    el("div", { class: "brand", text: "ZINGERS · CLASS PILOT" }),
+    el("h1", { text: "Rate 12 short replies" }),
+    el("p", { text: "This is part of a social media course project at Rutgers about funny replies to posts. You will read 12 short replies and rate how well you understood each one and how funny it was." }),
+    el("div", { class: "panel stack" }, [
+      el("p", { class: "small", text: "Takes about 5 minutes. No name, email or account. You can stop at any time by closing the page." }),
+      el("p", { class: "small", text: "Some replies come with a note about the post they answer, some with the full post, some with nothing. That is on purpose. Rate each one as you see it." }),
+      el("p", { class: "small muted", text: "At the end you will copy your answers and send them back to the person who shared this link. Answers will be summarized in a course report with no names." })
+    ]),
+    el("button", { class: "primary", text: "Start", onclick: function () { go(0); } })
+  ]);
+}
+
+function card(item) {
+  var kids = [];
+  if (item.cond === "full") {
+    var pb = el("div", { class: "prompt-box" }, [
+      el("div", { class: "tag", text: "Prompt" }),
+      el("div", { class: "txt", text: item.prompt.photo ? "[Photo]" : item.prompt.text })
+    ]);
+    if (item.prompt.photo) pb.appendChild(el("div", { class: "photo", text: "Photo: " + item.prompt.photo }));
+    kids.push(pb);
+  }
+  var body = [];
+  if (item.cond === "chip") body.push(el("span", { class: "chip", text: item.prompt.chip }));
+  body.push(el("div", { class: "reply-text", text: item.reply.t }));
+  body.push(el("div", { class: "handle", text: item.reply.h }));
+  kids.push(el("div", { class: "reply-body" }, body));
+  return el("div", { class: "reply-card" }, kids);
+}
+
+function scaleQ(label, lo, hi, key, item) {
+  var cur = (state.ratings[item.id] || {})[key];
+  var btns = [1, 2, 3, 4, 5].map(function (v) {
+    return el("button", {
+      type: "button", text: String(v), "aria-pressed": cur === v ? "true" : "false",
+      "aria-label": label + ": " + v + " of 5",
+      onclick: function () {
+        state.ratings[item.id] = state.ratings[item.id] || { cond: item.cond };
+        state.ratings[item.id][key] = v;
+        render();
+      }
+    });
+  });
+  return el("div", { class: "q" }, [
+    el("div", { class: "t", text: label }),
+    el("div", { class: "scale" }, btns),
+    el("div", { class: "ends" }, [el("span", { text: lo }), el("span", { text: hi })])
+  ]);
+}
+
+function itemScreen(n) {
+  var item = ITEMS[n], rt = state.ratings[item.id] || {};
+  var ready = rt.comp && rt.fun;
+  return el("div", { class: "stack" }, [
+    el("div", { class: "row spread small muted" }, [el("span", { text: "Reply " + (n + 1) + " of 12" })]),
+    el("div", { class: "progress", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "12", "aria-valuenow": String(n) },
+      [el("div", { style: "width:" + (n / 12 * 100) + "%" })]),
+    card(item),
+    scaleQ("How well did you understand this reply?", "Didn’t get it", "Totally got it", "comp", item),
+    scaleQ("How funny is it?", "Not funny", "Hilarious", "fun", item),
+    el("button", { class: "primary", text: n === 11 ? "Continue" : "Next reply", disabled: ready ? null : "disabled",
+      onclick: function () { go(n + 1); } }),
+    n > 0 ? el("button", { class: "ghost", text: "Back", onclick: function () { go(n - 1); } }) : null
+  ].filter(Boolean));
+}
+
+function radioQ(key, title, opts) {
+  return el("fieldset", { class: "q", style: "border:0;padding:0;margin:0;min-width:0" }, [
+    el("legend", { class: "t", text: title, style: "padding:0;margin-bottom:8px" })
+  ].concat(opts.map(function (o) {
+    var input = el("input", { type: "radio", name: key, value: o[0], id: key + "_" + o[0] });
+    if (state.exit[key] === o[0]) input.checked = true;
+    input.addEventListener("change", function () { state.exit[key] = o[0]; checkExit(); });
+    return el("label", { class: "opt", for: key + "_" + o[0] }, [input, el("span", { text: o[1] })]);
+  })));
+}
+var EXIT_KEYS = ["clearest", "feed", "use", "identity"];
+function checkExit() {
+  var b = document.getElementById("exitbtn");
+  if (b) b.disabled = !EXIT_KEYS.every(function (k) { return state.exit[k]; });
+}
+
+function exitScreen() {
+  var ta = el("textarea", { id: "note", "aria-label": "Anything confusing or funny, optional" });
+  ta.value = state.note;
+  ta.addEventListener("input", function () { state.note = ta.value; });
+  var wrap = el("div", { class: "stack" }, [
+    el("h2", { text: "A few last questions" }),
+    radioQ("clearest", "Which version made the replies easiest to understand?", [
+      ["none", "The reply by itself"], ["chip", "The reply with a short note about its post"],
+      ["full", "The reply with the full post above it"], ["same", "No difference"]]),
+    radioQ("feed", "If this were an app, which would you rather scroll?", [
+      ["replies", "A feed of funny replies from many posts, each with a short note about its post"],
+      ["threads", "A feed of posts, where I tap one to read its replies"], ["either", "Either is fine"]]),
+    radioQ("use", "How often do you read comment sections (TikTok, Instagram, YouTube, Reddit)?", [
+      ["daily", "Most days"], ["weekly", "A few times a week"], ["rarely", "Rarely"], ["never", "Never"]]),
+    radioQ("identity", "On an app like this, how would you want your replies shown?", [
+      ["anon", "Anonymous"], ["handle", "Under a made-up username"], ["real", "Under my real name"]]),
+    el("div", { class: "q" }, [
+      el("label", { class: "t", for: "note", text: "Optional: anything confusing, or a reply you loved?" }), ta
+    ]),
+    el("button", { class: "primary", id: "exitbtn", text: "See my answers", onclick: function () { go(13); } })
+  ]);
+  setTimeout(checkExit, 0);
+  return wrap;
+}
+
+function payload() {
+  var rows = ITEMS.map(function (it) {
+    var r = state.ratings[it.id] || {};
+    return [it.id, it.cond, r.comp, r.fun];
+  });
+  return JSON.stringify({ study: "zingers-pilot-v1", rot: "abc"[ROT], r: rows, x: state.exit, note: state.note });
+}
+
+function doneScreen() {
+  var text = payload();
+  var ta = el("textarea", { class: "result", id: "out", readonly: "readonly", "aria-label": "Your answers", style: "min-height:140px" });
+  ta.value = text;
+  var msg = el("p", { class: "small muted", text: "" });
+  var copy = el("button", { class: "primary", text: "Copy my answers", onclick: function () {
+    function fallback() { ta.focus(); ta.select(); msg.textContent = "Select the text above and copy it."; }
+    try {
+      navigator.clipboard.writeText(text).then(function () { msg.textContent = "Copied. Paste it into a message to the person who sent you this link."; }, fallback);
+    } catch (e) { fallback(); }
+  } });
+  return el("div", { class: "stack" }, [
+    el("div", { class: "ok", text: "Thank you." }),
+    el("h2", { text: "Last step: send your answers back" }),
+    el("p", { text: "Tap the button, then paste the text into a message to the person who sent you this link. It contains only your ratings and answers." }),
+    ta, copy, msg
+  ]);
+}
+
+function render() {
+  app.textContent = "";
+  var s = state.step, n;
+  if (s === -1) n = intro();
+  else if (s < 12) n = itemScreen(s);
+  else if (s === 12) n = exitScreen();
+  else n = doneScreen();
+  app.appendChild(n);
+}
+render();
+</script>
+</body></html>
