@@ -154,7 +154,8 @@ function intro() {
     el("p", { text: "This is part of a social media course project at Rutgers about funny replies to posts. You will read 12 short replies and rate how well you understood each one and how funny it was." }),
     el("div", { class: "panel stack" }, [
       el("p", { class: "small", text: "Takes about 5 minutes. No name, email or account. You can stop at any time by closing the page." }),
-      el("p", { class: "small", text: "Some replies come with a note about the post they answer, some with the full post, some with nothing. That is on purpose. Rate each one as you see it." }),
+      el("p", { class: "small", text: "Some replies come with a note about the post they answer, some with the full post, some with nothing. That is on purpose. Rate each one as you see it." })
+    ]),
     el("button", { class: "primary", text: "Start", onclick: function () { go(0); } })
   ]);
 }
