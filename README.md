@@ -144,8 +144,8 @@ This project draws on research on humor and community on TikTok, humor and harm,
 
 ## Author
 
-**[Your name]**, [your institution]. [Link to portfolio or LinkedIn]
+**Anushka Singh**, Rutgers University. (https://anushka02singh.github.io/personal-porfolio-site/)
 
 ## License
 
-Code: MIT. Written material and figures: CC BY 4.0. Change these if your course or instructor requires something else.
+Code: MIT. Written material and figures: CC BY 4.0.
